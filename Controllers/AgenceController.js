@@ -2,10 +2,10 @@ import { JSONResponse } from '../Classes/JSONResponse.js';
 import { Database } from '../Database/database.js';
 
 const database = new Database({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'agence_vehicule',
+	host: 'localhost',
+	user: 'root',
+	password: '',
+	database: 'agence_vehicule',
 });
 
 /**
@@ -27,7 +27,8 @@ const validateAgenceFields = body => {
 	const errors = [];
 	if (!body.nom || typeof body.nom !== 'string') errors.push('Invalid or missing nom');
 	if (!body.adresse || typeof body.adresse !== 'string') errors.push('Invalid or missing adresse');
-	if (!body.telephone || typeof body.telephone !== 'string') errors.push('Invalid or missing telephone');
+	if (!body.telephone || typeof body.telephone !== 'string')
+		errors.push('Invalid or missing telephone');
 	if (!body.email || typeof body.email !== 'string' || !body.email.includes('@'))
 		errors.push('Invalid or missing email');
 	return errors;
@@ -57,8 +58,9 @@ export const AgenceController = {
 				telephone: row.telephone,
 				email: row.email,
 			}));
-
-			res.render('agences', { agences });
+			const jsonResponse = createJSONResponse(agences, null, req, { count: agences.length });
+			res.status(200).json(jsonResponse);
+			// res.render('agences', { agences });
 		});
 	},
 
@@ -99,7 +101,7 @@ export const AgenceController = {
 			}
 
 			handleDatabaseQuery(
-				'INSERT INTO agence (nom, adresse, telephone, email) VALUES (?, ?, ?, ?, ?)',
+				'INSERT INTO agence (nom, adresse, telephone, email) VALUES (?, ?, ?, ?)',
 				[nom, adresse, telephone, email],
 				req,
 				res,
@@ -163,7 +165,11 @@ export const AgenceController = {
 			}
 
 			handleDatabaseQuery('DELETE FROM agence WHERE id = ?', [agenceId], req, res, () => {
-				const jsonResponse = createJSONResponse({ message: 'Agence deleted successfully' }, null, req);
+				const jsonResponse = createJSONResponse(
+					{ message: 'Agence deleted successfully' },
+					null,
+					req
+				);
 				res.status(200).json(jsonResponse);
 			});
 		});

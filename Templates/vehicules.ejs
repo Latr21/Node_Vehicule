@@ -1,27 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Véhicules</title>
+    <title>Liste des Véhicules</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold text-center mb-6">Liste des Véhicules</h1>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Nos Véhicules</h1>
+ 
+        <!-- Formulaire d'ajout -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-10">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Ajouter un Véhicule</h2>
+            <form id="formAjoutVehicule" action="/vehicules" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input name="marque" placeholder="Marque" required class="p-3 border rounded-xl">
+                <input name="model" placeholder="Modèle" required class="p-3 border rounded-xl">
+                <input name="immatriculation" placeholder="Immatriculation" required class="p-3 border rounded-xl">
+                <input name="annee" type="number" min="1886" placeholder="Année" required class="p-3 border rounded-xl">
+                <input name="prix_par_jour" type="number" step="0.01" placeholder="Prix par jour (€)" required class="p-3 border rounded-xl">
+                <select name="agence_id" required class="p-3 border rounded-xl">
+                    <option value="" disabled>Sélectionner une Agence</option>
+                    <% agences.forEach(agence => { %>
+                        <option value="<%= agence.id %>"><%= agence.nom %></option>
+                    <% }) %>
+                </select>
+                <select name="statut" required class="p-3 border rounded-xl">
+                    <option value="Disponible">Disponible</option>
+                    <option value="Loué">Loué</option>
+                    <option value="En Réparation">En Réparation</option>
+                </select>
+ 
+                <button type="submit" class="col-span-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold">
+                    Ajouter
+                </button>
+            </form>
+        </div>
+ 
+        <!-- Liste des véhicules -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <% vehicules.forEach(vehicule => { %>
-                <div class="bg-white shadow-md rounded-lg p-4">
-                    <h2 class="text-xl font-semibold mb-2"><%= vehicule.marque %> <%= vehicule.modele %></h2>
-                    <p class="text-gray-700">Année : <%= vehicule.annee %></p>
-                    <p class="text-gray-700">Prix : <%= vehicule.prix_par_jour %> €</p>
-                    <p class="text-gray-700">Kilométrage : <%= vehicule.immatriculation %> km</p>
-                    <form action="/vehicules/delete/<%= vehicule.id %>" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?');">
-                        <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Supprimer</button>
-                    </form>
-                </div>
-            <% }) %>
+            <% if (vehicules.length > 0) { %>
+                <% vehicules.forEach(vehicule => { %>
+                    <div class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition duration-300">
+                        <h2 class="text-xl font-semibold text-blue-600 mb-2"><%= vehicule.marque %> <%= vehicule.model %></h2>
+                        <p><strong>Année :</strong> <%= vehicule.annee %></p>
+                        <p><strong>Immatriculation :</strong> <%= vehicule.immatriculation %></p>
+                        <p><strong>Statut :</strong>
+                            <span class="inline-block px-2 py-1 rounded-full text-white text-sm
+                                <%= vehicule.statut === 'Disponible' ? 'bg-green-500' :
+                                    vehicule.statut === 'Loué' ? 'bg-orange-400' :
+                                    vehicule.statut === 'En Réparation' ? 'bg-yellow-500' : 'bg-gray-400' %>">
+                                <%= vehicule.statut %>
+                            </span>
+                        </p>
+                        <p><strong>Prix / jour :</strong> <%= vehicule.prix_par_jour %> €</p>
+                        <p><strong>Agence :</strong> <%= vehicule.agence_nom || 'Non assignée' %></p>
+ 
+                        <div class="mt-4">
+                            <form action="/vehicules/delete/<%= vehicule.id %>" method="POST">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit">Supprimer</button>
+                              </form>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="col-span-3 text-center text-gray-500 text-lg">Aucun véhicule trouvé.</div>
+            <% } %>
         </div>
     </div>
+ 
+    <!-- Script : conversion automatique des champs en number -->
+    <script>
+        document.getElementById('formAjoutVehicule').addEventListener('submit', function (e) {
+            const anneeInput = this.querySelector('input[name="annee"]');
+            const prixInput = this.querySelector('input[name="prix_par_jour"]');
+ 
+            if (anneeInput && anneeInput.value) {
+                anneeInput.value = Number(anneeInput.value);
+            }
+            if (prixInput && prixInput.value) {
+                prixInput.value = Number(prixInput.value);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -47,9 +47,19 @@ export const VehiculeController = {
 					statut: row.statut,
 					prix_par_jour: row.prix_par_jour,
 				}));
+
+				database.query('SELECT * FROM agence').then(rows => {
+					const agences = rows.map(row => ({
+						id: row.id,
+						nom: row.nom,
+						adresse: row.adresse,
+						telephone: row.telephone,
+						email: row.email,
+					}));
+					res.render('vehicules', { vehicules, agences });
+				});
 				// const jsonResponse = createJSONResponse(vehicules, null, req, { count: vehicules.length });
 				// res.status(200).json(jsonResponse);
-				res.render('vehicules', { vehicules });
 			})
 			.catch(error => {
 				const jsonResponse = createJSONResponse(null, error.message, req);
@@ -89,6 +99,9 @@ export const VehiculeController = {
 
 	createVehicule: (req, res) => {
 		console.log('Creating vehicule...');
+		console.log(req.body);
+		req.body.annee = parseInt(req.body.annee, 10);
+		req.body.prix_par_jour = parseFloat(req.body.prix_par_jour);
 		const errors = validateVehiculeFields(req.body);
 		if (errors.length > 0) {
 			const jsonResponse = createJSONResponse(null, errors.join(', '), req);
@@ -102,12 +115,13 @@ export const VehiculeController = {
 					return res.status(400).json(jsonResponse);
 				}
 
-				const { marque, model, immatriculation, annee, statut, prix_par_jour } = req.body;
+				const { marque, model, immatriculation, annee, statut, prix_par_jour, agence_id } =
+					req.body;
 
 				database
 					.query(
-						'INSERT INTO vehicule (marque, model, immatriculation, annee, statut, prix_par_jour) VALUES (?, ?, ?, ?, ?, ?)',
-						[marque, model, immatriculation, annee, statut, prix_par_jour]
+						'INSERT INTO vehicule (marque, model, immatriculation, annee, statut, prix_par_jour, agence_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+						[marque, model, immatriculation, annee, statut, prix_par_jour, agence_id]
 					)
 					.then(result => {
 						const newVehicule = {
@@ -121,8 +135,32 @@ export const VehiculeController = {
 							prix_par_jour,
 						};
 
-						const jsonResponse = createJSONResponse(newVehicule, null, req);
-						res.status(201).json(jsonResponse);
+						database.query('SELECT * FROM vehicule').then(rows => {
+							const vehicules = rows.map(row => ({
+								id: row.id,
+								agence_id: row.agence_id,
+								marque: row.marque,
+								model: row.model,
+								immatriculation: row.immatriculation,
+								annee: row.annee,
+								statut: row.statut,
+								prix_par_jour: row.prix_par_jour,
+							}));
+
+							database.query('SELECT * FROM agence').then(rows => {
+								const agences = rows.map(row => ({
+									id: row.id,
+									nom: row.nom,
+									adresse: row.adresse,
+									telephone: row.telephone,
+									email: row.email,
+								}));
+								res.render('vehicules', { vehicules, agences });
+							});
+						});
+
+						// const jsonResponse = createJSONResponse(newVehicule, null, req);
+						// res.status(201).json(jsonResponse);
 					})
 					.catch(error => {
 						const jsonResponse = createJSONResponse(null, error.message, req);

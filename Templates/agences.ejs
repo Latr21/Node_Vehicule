@@ -1,26 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agences</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold text-center mb-6">Liste des Agences</h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <% agences.forEach(agence => { %>
-                <div class="bg-white shadow-md rounded-lg p-4">
-                    <h2 class="text-xl font-semibold mb-2"><%= agence.nom %></h2>
-                    <p class="text-gray-700"><strong>Téléphone:</strong> <%= agence.telephone %></p>
-                    <p class="text-gray-700"><strong>Adresse:</strong> <%= agence.adresse %></p>
-                    <form action="/agences/delete/<%= agence.id %>" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette agence ?');">
-                        <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Supprimer</button>
-                    </form>
-                </div>
+<%- include('includes/header') %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% agences.forEach(agence=> { %>
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <h2 class="text-xl font-semibold mb-2">
+                    <%= agence.nom %>
+                </h2>
+                <p class="text-gray-700"><strong>Téléphone:</strong>
+                    <%= agence.telephone %>
+                </p>
+                <p class="text-gray-700"><strong>Adresse:</strong>
+                    <%= agence.adresse %>
+                </p>
+                <form action="/agences/delete/<%= agence.id %>" method="POST"
+                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette agence ?');">
+                    <button type="submit"
+                        class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Supprimer</button>
+                </form>
+            </div>
             <% }) %>
-        </div>
     </div>
-</body>
-</html>
+
+    <%- include('includes/footer') %>

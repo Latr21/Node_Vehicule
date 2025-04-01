@@ -2,22 +2,14 @@ import { JSONResponse } from '../Classes/JSONResponse.js';
 import { Database } from '../Database/database.js';
 
 const database = new Database({
-	host: 'localhost',
-	user: 'root',
-	password: '',
-	database: 'nodejs',
+	host: process.env.DB_HOST,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_NAME,
 });
 
 /**
  * ## Crée une réponse JSON structurée.
- *
- * @param {any} data - Les données à inclure dans la réponse.
- * @param {Error|null} error - Une erreur à inclure dans la réponse, ou null si aucune erreur.
- * @param {Object} req - L'objet de requête HTTP.
- * @param {string} req.method - La méthode HTTP de la requête (GET, POST, etc.).
- * @param {string} req.url - L'URL de la requête.
- * @param {Object} [additionalInfo={}] - Informations supplémentaires à inclure dans la réponse.
- * @returns {JSONResponse} Une instance de JSONResponse contenant les données, l'erreur, et les métadonnées.
  */
 const createJSONResponse = (data, error, req, additionalInfo = {}) => {
 	return new JSONResponse(data, error, {
@@ -29,37 +21,20 @@ const createJSONResponse = (data, error, req, additionalInfo = {}) => {
 };
 
 /**
- * ## Valide les champs d'un produit et retourne une liste d'erreurs s'il y en a.
- *
- * @param {Object} body - L'objet contenant les champs du produit à valider.
- * @param {string} body.name - Le nom du produit (doit être une chaîne de caractères non vide).
- * @param {number} body.price - Le prix du produit (doit être un nombre non négatif).
- * @param {number} body.quantity - La quantité du produit (doit être un nombre non négatif).
- * @returns {string[]} Une liste de messages d'erreur si des champs sont invalides ou manquants, sinon une liste vide.
+ * ## Valide les champs d'une agence et retourne une liste d'erreurs s'il y en a.
  */
 const validateAgenceFields = body => {
 	const errors = [];
-	if (!body.name || typeof body.name !== 'string') errors.push('Invalid or missing name');
-	if (body.price === undefined || typeof body.price !== 'number' || body.price < 0)
-		errors.push('Invalid or missing price');
-	if (body.quantity === undefined || typeof body.quantity !== 'number' || body.quantity < 0)
-		errors.push('Invalid or missing quantity');
+	if (!body.nom || typeof body.nom !== 'string') errors.push('Invalid or missing nom');
+	if (!body.adresse || typeof body.adresse !== 'string') errors.push('Invalid or missing adresse');
+	if (!body.telephone || typeof body.telephone !== 'string') errors.push('Invalid or missing telephone');
+	if (!body.email || typeof body.email !== 'string' || !body.email.includes('@'))
+		errors.push('Invalid or missing email');
 	return errors;
 };
 
 /**
  * ## Gère l'exécution d'une requête de base de données et envoie une réponse HTTP.
- *
- * @param {string} query - La requête SQL à exécuter.
- * @param {Array} params - Les paramètres à passer à la requête SQL.
- * @param {Object} req - L'objet de requête HTTP.
- * @param {Object} res - L'objet de réponse HTTP.
- * @param {Function} successCallback - La fonction à exécuter en cas de succès de la requête.
- *
- * @description
- * Cette fonction exécute une requête SQL en utilisant la méthode `query` de l'objet `database`.
- * En cas de succès, elle appelle la fonction `successCallback` fournie.
- * En cas d'erreur, elle génère une réponse JSON contenant le message d'erreur et renvoie un statut HTTP 500.
  */
 const handleDatabaseQuery = (query, params, req, res, successCallback) => {
 	database
@@ -77,16 +52,13 @@ export const AgenceController = {
 		handleDatabaseQuery('SELECT * FROM agence', [], req, res, rows => {
 			const agences = rows.map(row => ({
 				id: row.id,
-				name: row.name,
-				price: row.price,
-				quantity: row.quantity,
-				dateOfCreation: row.dateOfCreation,
-				dateOfModification: row.dateOfModification,
+				nom: row.nom,
+				adresse: row.adresse,
+				telephone: row.telephone,
+				email: row.email,
 			}));
 
 			res.render('agences', { agences });
-			// const jsonResponse = createJSONResponse(agences, null, req, { count: agences.length });
-			// res.status(200).json(jsonResponse);
 		});
 	},
 
@@ -118,22 +90,21 @@ export const AgenceController = {
 			return res.status(400).json(jsonResponse);
 		}
 
-		const { name, price, quantity } = req.body;
-		const dateOfCreation = new Date();
+		const { nom, adresse, telephone, email } = req.body;
 
-		handleDatabaseQuery('SELECT * FROM agence WHERE name = ?', [name], req, res, rows => {
+		handleDatabaseQuery('SELECT * FROM agence WHERE nom = ?', [nom], req, res, rows => {
 			if (rows.length > 0) {
 				const jsonResponse = createJSONResponse(null, 'Agence already exists', req);
 				return res.status(400).json(jsonResponse);
 			}
 
 			handleDatabaseQuery(
-				'INSERT INTO agence (name, price, quantity, dateOfCreation) VALUES (?, ?, ?, ?)',
-				[name, price, quantity, dateOfCreation],
+				'INSERT INTO agence (nom, adresse, telephone, email) VALUES (?, ?, ?, ?, ?)',
+				[nom, adresse, telephone, email],
 				req,
 				res,
 				result => {
-					const newAgence = { id: result.insertId, name, price, quantity, dateOfCreation };
+					const newAgence = { id: result.insertId, nom, adresse, telephone, email };
 					const jsonResponse = createJSONResponse(newAgence, null, req);
 					res.status(201).json(jsonResponse);
 				}
@@ -155,8 +126,7 @@ export const AgenceController = {
 			return res.status(400).json(jsonResponse);
 		}
 
-		const { name, price, quantity } = req.body;
-		const dateOfModification = new Date();
+		const { nom, adresse, telephone, email } = req.body;
 
 		handleDatabaseQuery('SELECT * FROM agence WHERE id = ?', [agenceId], req, res, rows => {
 			if (rows.length === 0) {
@@ -165,12 +135,12 @@ export const AgenceController = {
 			}
 
 			handleDatabaseQuery(
-				'UPDATE agence SET name = ?, price = ?, quantity = ?, dateOfModification = ? WHERE id = ?',
-				[name, price, quantity, dateOfModification, agenceId],
+				'UPDATE agence SET nom = ?, adresse = ?, telephone = ?, email = ? WHERE id = ?',
+				[nom, adresse, telephone, email, agenceId],
 				req,
 				res,
 				() => {
-					const updatedAgence = { id: agenceId, name, price, quantity, dateOfModification };
+					const updatedAgence = { id: agenceId, nom, adresse, telephone, email };
 					const jsonResponse = createJSONResponse(updatedAgence, null, req);
 					res.status(200).json(jsonResponse);
 				}

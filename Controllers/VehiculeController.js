@@ -2,10 +2,10 @@ import { JSONResponse } from '../Classes/JSONResponse.js';
 import { Database } from '../Database/database.js';
 
 const database = new Database({
-    host: 'localhost',
-    vehicule: 'root',
-    password: '',
-    database: 'nodejs',
+	host: process.env.DB_HOST,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_NAME,
 });
 
 const createJSONResponse = (data, error, req, additionalInfo = {}) => {
@@ -41,13 +41,11 @@ export const VehiculeController = {
                     model: row.model,
                     immatriculation: row.immatriculation,
                     annee: row.annee,
-                    status: row.status,
-                    price: row.price,
+                    statut: row.statut,
+                    prix: row.price,
                 }));
 
                 res.render('vehicules', { vehicules });
-                // const jsonResponse = createJSONResponse(vehicules, null, req, { count: vehicules.length });
-                // res.status(200).json(jsonResponse);
             })
             .catch(error => {
                 const jsonResponse = createJSONResponse(null, error.message, req);
@@ -71,8 +69,8 @@ export const VehiculeController = {
                     model: row.model,
                     immatriculation: row.immatriculation,
                     annee: row.annee,
-                    status: row.status,
-                    price: row.price,
+                    statut: row.statut,
+                    prix: row.price,
                 }));
 
                 const jsonResponse = createJSONResponse(vehicule, null, req, { count: vehicule.length });
@@ -99,22 +97,22 @@ export const VehiculeController = {
                     return res.status(400).json(jsonResponse);
                 }
 
-                const { name, email, age, isActive } = req.body;
-                const registrationDate = new Date();
+                const { marque, model, immatriculation, annee, statut, prix} = req.body;
 
                 database
                     .query(
-                        'INSERT INTO vehicule (name, email, age, isActive, registrationDate) VALUES (?, ?, ?, ?, ?)',
-                        [name, email, age, isActive, registrationDate]
+                        'INSERT INTO vehicule (marque, model, immatriculation, annee, statut, prix) VALUES (?, ?, ?, ?, ?)',
+                        [marque, model, immatriculation, annee, statut, prix]
                     )
                     .then(result => {
                         const newVehicule = {
                             id: result.insertId,
-                            name,
-                            email,
-                            age,
-                            isActive,
-                            registrationDate 
+                            marque,
+                            model,
+                            immatriculation,
+                            annee,
+                            statut,
+                            prix 
                         };
 
                         const jsonResponse = createJSONResponse(newVehicule, null, req);
@@ -155,21 +153,20 @@ export const VehiculeController = {
                     return res.status(404).json(jsonResponse);
                 }
 
-                const registrationDate = new Date();
-
                 database
                     .query(
-                        'UPDATE vehicule SET name = ?, email = ?, age = ?, isActive = ? WHERE id = ?',
-                        [name, email, age, isActive, vehiculeId]
+                        'UPDATE vehicule SET marque = ?, model = ?, immatriculation = ?, annee = ?, statut = ?, prix = ? WHERE id = ?',
+                        [marque, model, immatriculation, annee, statut, prix]
                     )
                     .then(() => {
                         const updatedVehicule = {
                             id: vehiculeId,
-                            name,
-                            email,
-                            age,
-                            isActive,
-                            registrationDate,
+                            marque,
+                            model,
+                            immatriculation,
+                            annee,
+                            statut,
+                            prix 
                         };
 
                         const jsonResponse = createJSONResponse(updatedVehicule, null, req);

@@ -58,9 +58,9 @@ export const AgenceController = {
 				telephone: row.telephone,
 				email: row.email,
 			}));
-			const jsonResponse = createJSONResponse(agences, null, req, { count: agences.length });
-			res.status(200).json(jsonResponse);
-			// res.render('agences', { agences });
+			// const jsonResponse = createJSONResponse(agences, null, req, { count: agences.length });
+			// res.status(200).json(jsonResponse);
+			res.render('agences', { agences });
 		});
 	},
 

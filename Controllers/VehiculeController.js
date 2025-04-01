@@ -47,9 +47,9 @@ export const VehiculeController = {
 					statut: row.statut,
 					prix_par_jour: row.prix_par_jour,
 				}));
-				const jsonResponse = createJSONResponse(vehicules, null, req, { count: vehicules.length });
-				res.status(200).json(jsonResponse);
-				// res.render('vehicules', { vehicules });
+				// const jsonResponse = createJSONResponse(vehicules, null, req, { count: vehicules.length });
+				// res.status(200).json(jsonResponse);
+				res.render('vehicules', { vehicules });
 			})
 			.catch(error => {
 				const jsonResponse = createJSONResponse(null, error.message, req);

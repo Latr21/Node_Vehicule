@@ -170,7 +170,18 @@ export const AgenceController = {
 					null,
 					req
 				);
-				res.status(200).json(jsonResponse);
+
+				handleDatabaseQuery('SELECT * FROM agence', [], req, res, rows => {
+					const agences = rows.map(row => ({
+						id: row.id,
+						nom: row.nom,
+						adresse: row.adresse,
+						telephone: row.telephone,
+						email: row.email,
+					}));
+					res.render('agences', { agences });
+					// res.status(200).json(jsonResponse);
+				});
 			});
 		});
 	},

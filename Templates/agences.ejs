@@ -15,7 +15,7 @@
                     <h2 class="text-xl font-semibold mb-2"><%= agence.nom %></h2>
                     <p class="text-gray-700"><strong>Téléphone:</strong> <%= agence.telephone %></p>
                     <p class="text-gray-700"><strong>Adresse:</strong> <%= agence.adresse %></p>
-                    <form action="/agences/delete/<%= vehicule.id %>" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette agence ?');">
+                    <form action="/agences/delete/<%= agence.id %>" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette agence ?');">
                         <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Supprimer</button>
                     </form>
                 </div>

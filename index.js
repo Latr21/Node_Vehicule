@@ -43,7 +43,7 @@ app.get('/vehicules', VehiculeController.getAllVehicules);
 app.get('/vehicules/:id', VehiculeController.getVehiculeById);
 app.post('/vehicules', VehiculeController.createVehicule);
 app.put('/vehicules/:id', VehiculeController.updateVehicule);
-app.delete('/vehicules/:id', VehiculeController.deleteVehicule);
+app.post('/vehicules/delete/:id', VehiculeController.deleteVehicule);
 
 app.listen(port, () => {
     console.log(`Server is running at ${host}:${port}`);

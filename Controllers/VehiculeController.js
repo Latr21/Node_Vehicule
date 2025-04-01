@@ -170,7 +170,7 @@ export const VehiculeController = {
 						[marque, model, immatriculation, annee, statut, prix_par_jour, agence_id, vehiculeId]
 					)
 					.then(() => {
-                        console.log('Vehicule updated successfully');
+						console.log('Vehicule updated successfully');
 						const updatedVehicule = {
 							id: vehiculeId,
 							agence_id: req.body.agence_id ? req.body.agence_id : null,
@@ -198,38 +198,55 @@ export const VehiculeController = {
 
 	deleteVehicule: (req, res) => {
 		console.log('Deleting vehicule...');
+
 		const vehiculeId = parseInt(req.params.id, 10);
+		console.log(vehiculeId);
 		if (isNaN(vehiculeId)) {
 			const jsonResponse = createJSONResponse(null, 'Invalid vehicule ID', req);
 			return res.status(400).json(jsonResponse);
 		}
 
-		database
-			.query('SELECT * FROM vehicule WHERE id = ?', [vehiculeId])
-			.then(rows => {
-				if (rows.length === 0) {
-					const jsonResponse = createJSONResponse(null, 'Vehicule not found', req);
-					return res.status(404).json(jsonResponse);
-				}
+		database.query('SELECT * FROM vehicule WHERE id = ?', [vehiculeId]).then(rows => {
+			if (rows.length === 0) {
+				const jsonResponse = createJSONResponse(null, 'Vehicule not found', req);
+				return res.status(404).json(jsonResponse);
+			}
 
-				database
-					.query('DELETE FROM vehicule WHERE id = ?', [vehiculeId])
-					.then(() => {
-						const jsonResponse = createJSONResponse(
-							{ message: 'Vehicule deleted successfully' },
-							null,
-							req
-						);
-						res.status(200).json(jsonResponse);
-					})
-					.catch(error => {
-						const jsonResponse = createJSONResponse(null, error.message, req);
-						res.status(500).json(jsonResponse);
-					});
-			})
-			.catch(error => {
-				const jsonResponse = createJSONResponse(null, error.message, req);
-				res.status(500).json(jsonResponse);
-			});
+			database
+				.query('DELETE FROM vehicule WHERE id = ?', [vehiculeId])
+				.then(() => {
+					const jsonResponse = createJSONResponse(
+						{ message: 'Vehicule deleted successfully' },
+						null,
+						req
+					);
+
+					database
+						.query('SELECT * FROM vehicule')
+						.then(rows => {
+							const vehicules = rows.map(row => ({
+								id: row.id,
+								agence_id: row.agence_id,
+								marque: row.marque,
+								model: row.model,
+								immatriculation: row.immatriculation,
+								annee: row.annee,
+								statut: row.statut,
+								prix_par_jour: row.prix_par_jour,
+							}));
+
+							res.render('vehicules', { vehicules });
+							// res.status(200).json(jsonResponse);
+						})
+						.catch(error => {
+							const jsonResponse = createJSONResponse(null, error.message, req);
+							res.status(500).json(jsonResponse);
+						});
+				})
+				.catch(error => {
+					const jsonResponse = createJSONResponse(null, error.message, req);
+					res.status(500).json(jsonResponse);
+				});
+		});
 	},
 };

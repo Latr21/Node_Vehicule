@@ -16,7 +16,15 @@ const createJSONResponse = (data, error, req, additionalInfo = {}) => {
 		...additionalInfo,
 	});
 };
-
+const handleDatabaseQuery = (query, params, req, res, successCallback) => {
+	database
+		.query(query, params)
+		.then(successCallback)
+		.catch(error => {
+			const jsonResponse = createJSONResponse(null, error.message, req);
+			res.status(500).json(jsonResponse);
+		});
+};
 const validateVehiculeFields = body => {
 	const errors = [];
 	if (!body.marque || typeof body.marque !== 'string') errors.push('Invalid or missing marque');
@@ -32,40 +40,41 @@ const validateVehiculeFields = body => {
 };
 
 export const VehiculeController = {
+	
 	getAllVehicules: (req, res) => {
-		console.log('Fetching all vehicules...');
-		database
-			.query('SELECT * FROM vehicule')
-			.then(rows => {
-				const vehicules = rows.map(row => ({
-					id: row.id,
-					agence_id: row.agence_id,
-					marque: row.marque,
-					model: row.model,
-					immatriculation: row.immatriculation,
-					annee: row.annee,
-					statut: row.statut,
-					prix_par_jour: row.prix_par_jour,
-				}));
-
-				database.query('SELECT * FROM agence').then(rows => {
-					const agences = rows.map(row => ({
-						id: row.id,
-						nom: row.nom,
-						adresse: row.adresse,
-						telephone: row.telephone,
-						email: row.email,
-					}));
-					res.render('vehicules', { vehicules, agences });
-				});
-				// const jsonResponse = createJSONResponse(vehicules, null, req, { count: vehicules.length });
-				// res.status(200).json(jsonResponse);
-			})
-			.catch(error => {
-				const jsonResponse = createJSONResponse(null, error.message, req);
-				res.status(500).json(jsonResponse);
-			});
-	},
+        handleDatabaseQuery(
+            `SELECT vehicule.*, agence.nom AS agence_nom
+             FROM vehicule
+             LEFT JOIN agence ON vehicule.agence_id = agence.id`,
+            [],
+            req,
+            res,
+            vehiculeRows => {
+                const vehicules = vehiculeRows.map(row => ({
+                    id: row.id,
+                    marque: row.marque,
+                    model: row.model,
+                    immatriculation: row.immatriculation,
+                    annee: row.annee,
+                    prix_par_jour: row.prix_par_jour,
+                    statut: row.statut,
+                    agence_nom: row.agence_nom || null,
+                }));
+    
+                // On récupère maintenant les agences pour alimenter le <select>
+                handleDatabaseQuery('SELECT id, nom FROM agence', [], req, res, agenceRows => {
+                    const agences = agenceRows.map(row => ({
+                        id: row.id,
+                        nom: row.nom,
+                    }));
+    
+                    // On envoie vehicules ET agences à la vue
+                    res.render('vehicules', { vehicules, agences });
+                });
+            }
+        );
+    },
+    
 
 	getVehiculeById: (req, res) => {
 		console.log('Finding vehicule...');
@@ -233,58 +242,17 @@ export const VehiculeController = {
 				res.status(500).json(jsonResponse);
 			});
 	},
-
-	deleteVehicule: (req, res) => {
-		console.log('Deleting vehicule...');
-
-		const vehiculeId = parseInt(req.params.id, 10);
-		console.log(vehiculeId);
-		if (isNaN(vehiculeId)) {
-			const jsonResponse = createJSONResponse(null, 'Invalid vehicule ID', req);
-			return res.status(400).json(jsonResponse);
-		}
-
-		database.query('SELECT * FROM vehicule WHERE id = ?', [vehiculeId]).then(rows => {
-			if (rows.length === 0) {
-				const jsonResponse = createJSONResponse(null, 'Vehicule not found', req);
-				return res.status(404).json(jsonResponse);
-			}
-
-			database
-				.query('DELETE FROM vehicule WHERE id = ?', [vehiculeId])
-				.then(() => {
-					const jsonResponse = createJSONResponse(
-						{ message: 'Vehicule deleted successfully' },
-						null,
-						req
-					);
-
-					database
-						.query('SELECT * FROM vehicule')
-						.then(rows => {
-							const vehicules = rows.map(row => ({
-								id: row.id,
-								agence_id: row.agence_id,
-								marque: row.marque,
-								model: row.model,
-								immatriculation: row.immatriculation,
-								annee: row.annee,
-								statut: row.statut,
-								prix_par_jour: row.prix_par_jour,
-							}));
-
-							res.render('vehicules', { vehicules });
-							// res.status(200).json(jsonResponse);
-						})
-						.catch(error => {
-							const jsonResponse = createJSONResponse(null, error.message, req);
-							res.status(500).json(jsonResponse);
-						});
-				})
-				.catch(error => {
-					const jsonResponse = createJSONResponse(null, error.message, req);
-					res.status(500).json(jsonResponse);
-				});
-		});
-	},
+    deleteVehicule: (req, res) => {
+        const vehiculeId = parseInt(req.params.id, 10);
+    
+        if (isNaN(vehiculeId)) {
+            return res.status(400).json({ error: 'ID invalide' });
+        }
+    
+        handleDatabaseQuery('DELETE FROM vehicule WHERE id = ?', [vehiculeId], req, res, () => {
+            res.redirect('/vehicules');
+        });
+    },
+    
+	
 };

@@ -1,23 +1,53 @@
 <%- include('includes/header') %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <% agences.forEach(agence=> { %>
-            <div class="bg-white shadow-md rounded-lg p-4">
-                <h2 class="text-xl font-semibold mb-2">
-                    <%= agence.nom %>
-                </h2>
-                <p class="text-gray-700"><strong>Téléphone:</strong>
-                    <%= agence.telephone %>
-                </p>
-                <p class="text-gray-700"><strong>Adresse:</strong>
-                    <%= agence.adresse %>
-                </p>
-                <form action="/agences/delete/<%= agence.id %>" method="POST"
-                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette agence ?');">
-                    <button type="submit"
-                        class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Supprimer</button>
-                </form>
-            </div>
-            <% }) %>
-    </div>
 
-    <%- include('includes/footer') %>
+<!-- Formulaire d'ajout d'agence -->
+<div class="mb-8 bg-white shadow-md rounded-lg p-6 max-w-xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4">Ajouter une agence</h2>
+    <form action="/agences/add" method="POST" class="space-y-4">
+        <input type="text" name="nom" placeholder="Nom de l'agence" required
+            class="w-full border px-3 py-2 rounded" />
+        <input type="text" name="telephone" placeholder="Téléphone" required
+            class="w-full border px-3 py-2 rounded" />
+        <input type="text" name="adresse" placeholder="Adresse" required
+            class="w-full border px-3 py-2 rounded" />
+        <input type="email" name="email" placeholder="Email" required
+            class="w-full border px-3 py-2 rounded" />
+        <button type="submit"
+            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Ajouter</button>
+    </form>
+</div>
+
+<!-- Grille des agences -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+    <% agences.forEach(agence => { %>
+        <div class="bg-white shadow-md rounded-lg p-4">
+            <h2 class="text-xl font-semibold mb-2"><%= agence.nom %></h2>
+            <p class="text-gray-700"><strong>Téléphone:</strong> <%= agence.telephone %></p>
+            <p class="text-gray-700"><strong>Adresse:</strong> <%= agence.adresse %></p>
+            <p class="text-gray-700"><strong>Email:</strong> <%= agence.email %></p>
+
+            <!-- Formulaire de modification -->
+            <form action="/agences/update/<%= agence.id %>" method="POST" class="space-y-2 mt-4">
+                <input type="text" name="nom" value="<%= agence.nom %>" required
+                    class="w-full border px-2 py-1 rounded" />
+                <input type="text" name="telephone" value="<%= agence.telephone %>" required
+                    class="w-full border px-2 py-1 rounded" />
+                <input type="text" name="adresse" value="<%= agence.adresse %>" required
+                    class="w-full border px-2 py-1 rounded" />
+                <input type="email" name="email" value="<%= agence.email %>" required
+                    class="w-full border px-2 py-1 rounded" />
+                <button type="submit"
+                    class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Modifier</button>
+            </form>
+
+            <!-- Formulaire de suppression -->
+            <form action="/agences/delete/<%= agence.id %>" method="POST"
+                onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette agence ?');" class="mt-2">
+                <button type="submit"
+                    class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Supprimer</button>
+            </form>
+        </div>
+    <% }) %>
+</div>
+
+<%- include('includes/footer') %>

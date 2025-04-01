@@ -35,8 +35,8 @@ app.get('/', (req, res) => {
 
 app.get('/agences', AgenceController.getAllAgences);
 app.get('/agences/:id', AgenceController.getAgenceById);
-app.post('/agences', AgenceController.createAgence);
-app.put('/agences/:id', AgenceController.updateAgence);
+app.post('/agences/add', AgenceController.createAgence);
+app.post('/agences/update/:id', AgenceController.updateAgence);
 app.post('/agences/delete/:id', AgenceController.deleteAgence);
 
 app.get('/vehicules', VehiculeController.getAllVehicules);

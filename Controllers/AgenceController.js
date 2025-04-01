@@ -2,10 +2,10 @@ import { JSONResponse } from '../Classes/JSONResponse.js';
 import { Database } from '../Database/database.js';
 
 const database = new Database({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_NAME,
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'agence_vehicule',
 });
 
 /**

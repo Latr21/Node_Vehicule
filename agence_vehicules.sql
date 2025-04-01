@@ -18,16 +18,16 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `agence_vehicules`
+-- Base de données : `agence_vehicule`
 --
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `agences`
+-- Structure de la table `agence`
 --
 
-CREATE TABLE `agences` (
+CREATE TABLE `agence` (
   `id` int(11) NOT NULL,
   `nom` varchar(100) NOT NULL,
   `adresse` varchar(255) DEFAULT NULL,
@@ -38,10 +38,10 @@ CREATE TABLE `agences` (
 -- --------------------------------------------------------
 
 --
--- Structure de la table `vehicules`
+-- Structure de la table `vehicule`
 --
 
-CREATE TABLE `vehicules` (
+CREATE TABLE `vehicule` (
   `id` int(11) NOT NULL,
   `agence_id` int(11) NOT NULL,
   `marque` varchar(100) NOT NULL,
@@ -57,15 +57,15 @@ CREATE TABLE `vehicules` (
 --
 
 --
--- Index pour la table `agences`
+-- Index pour la table `agence`
 --
-ALTER TABLE `agences`
+ALTER TABLE `agence`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `vehicules`
+-- Index pour la table `vehicule`
 --
-ALTER TABLE `vehicules`
+ALTER TABLE `vehicule`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `immatriculation` (`immatriculation`),
   ADD KEY `agence_id` (`agence_id`);
@@ -75,15 +75,15 @@ ALTER TABLE `vehicules`
 --
 
 --
--- AUTO_INCREMENT pour la table `agences`
+-- AUTO_INCREMENT pour la table `agence`
 --
-ALTER TABLE `agences`
+ALTER TABLE `agence`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pour la table `vehicules`
+-- AUTO_INCREMENT pour la table `vehicule`
 --
-ALTER TABLE `vehicules`
+ALTER TABLE `vehicule`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -91,10 +91,10 @@ ALTER TABLE `vehicules`
 --
 
 --
--- Contraintes pour la table `vehicules`
+-- Contraintes pour la table `vehicule`
 --
-ALTER TABLE `vehicules`
-  ADD CONSTRAINT `vehicules_ibfk_1` FOREIGN KEY (`agence_id`) REFERENCES `agences` (`id`) ON DELETE CASCADE;
+ALTER TABLE `vehicule`
+  ADD CONSTRAINT `vehicule_ibfk_1` FOREIGN KEY (`agence_id`) REFERENCES `agence` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

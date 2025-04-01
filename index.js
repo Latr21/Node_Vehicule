@@ -37,7 +37,7 @@ app.get('/agences', AgenceController.getAllAgences);
 app.get('/agences/:id', AgenceController.getAgenceById);
 app.post('/agences', AgenceController.createAgence);
 app.put('/agences/:id', AgenceController.updateAgence);
-app.delete('/agences/:id', AgenceController.deleteAgence);
+app.post('/agences/delete/:id', AgenceController.deleteAgence);
 
 app.get('/vehicules', VehiculeController.getAllVehicules);
 app.get('/vehicules/:id', VehiculeController.getVehiculeById);

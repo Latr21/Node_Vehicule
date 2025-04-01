@@ -5,7 +5,8 @@ import { VehiculeController } from './Controllers/VehiculeController.js';
 const app = express();
 const host = process.env.HOST || 'localhost';
 const port = process.env.PORT || 3000;
-
+app.set("view engine", "ejs");
+app.set("views", "./templates");
 app.use((req, res, next) => {
     const requestMethod = req.method;
     const requestUrl = req.url;
